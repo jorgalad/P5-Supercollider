@@ -1,19 +1,15 @@
 s.quit;
-s.boot;
-
 (
 s.reboot;
 thisProcess.openUDPPort(57120);
 n = NetAddr("127.0.0.1", 57120);
 )
+
 NetAddr.langPort
 NetAddr.localAddr
 
-
 OSCFunc.trace(true);
-// Trace dumps all incoming OSC messages somewhere else, best not use it
 OSCFunc.trace(false);
-
 
 (
 SynthDef(\syn1, {
@@ -24,19 +20,37 @@ SynthDef(\syn1, {
 }).add;
 )
 
-OSCdef(\syn, {|msg, time, addr, recvPort| Synth(\syn1, [\freq, msg[1]])}, '/SC/syn1/freq');
-OSCdef(\syn, {|msg, time, addr, recvPort| Synth(\syn1, [\cutoff, msg[1]])}, '/SC/syn1/cutoff');
+OSCdef(\syn, {|msg, time, addr, recvPort| Synth(\syn1, [\freq, msg[1].midicps])}, '/SC/syn1/freq');
+s.boot;
 
 
 (
-OSCdef(\syn,
-	{|msg, time, addr, recvPort| Synth(\syn, [\freq, msg[1].midicps])},
-	'/Supercollider/Inst/Syn');
+SynthDef(\syn2, {
+		arg note = 60, freq=100, rate=2, cutoff=20, amp=0.1, gate=1,
+		attack = 0.1, decay = 0.3, sustain = 0.9, release = 0.2, mw = 10, out=0;
+		var lfo1, lfo2, env, env2, modenv, sig, temp, sum;
+		lfo1 = SinOsc.kr(1);
+		lfo2 = SinOsc.kr(lfo1, 0, 100, 200);
+	    env = EnvGen.ar(Env.perc, gate, doneAction: 2);
+		sum = 0;
+		5.do{
+			temp = VarSaw.ar(
+			50 + freq,
+				0.1*{Rand(0.5, 0.6)} !2,
+				{ExpRand(0.01, 0.05)}!2
+			);
+			sum = sum + temp;
+		};
+		sum = sum + temp;
+	// var env = EnvGen.ar(Env.perc, gate, doneAction: 2);
+	    env2 = EnvGen.kr(Env.adsr(1.0, 0.5, 0.2, 1), gate, doneAction:2);
+	sig = LPF.ar(sum, 100 + cutoff*8);
+	// sig = BRF.ar(sig, 200 + SinOsc.ar(3, mul: 0.2));
+	// sig = Resonz.ar(sig, 1200 * SinOsc.ar(1.4, mul: 0.9, add: 0.7) + 500, 1);
+
+	    Out.ar(out, sig * env * amp * 0.2);
+	}).add;
 )
 
-
-
-
-
-// stop posting.
-thisProcess.removeOSCRecvFunc(f);
+OSCdef(\syn_a, {|msg, time, addr, recvPort| Synth(\syn2, [\freq, msg[1]])}, '/SC/syn2/freq');
+OSCdef(\syn_b, {|msg, time, addr, recvPort| Synth(\syn2, [\cutoff, msg[1]] )}, '/SC/syn2/cutoff');

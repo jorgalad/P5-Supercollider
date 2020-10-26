@@ -11,7 +11,7 @@ var server = app.listen(3000);
 
 // Use the public folder 
 app.use(express.static('public'));
-console.log('My socket server is running');
+console.log('============ Server Running ============');
 
 var socket = require('socket.io');
 var io = socket(server);
@@ -21,22 +21,23 @@ io.sockets.on('connection', newConnection);
 function newConnection(socket) {
     console.log('new connection' + socket.id);
     //If there's a message called 'mouse', trigger the mouseMsg function
-    socket.on('mouse', mouseMsg )
-    function mouseMsg(data) {
-        //broadcast.emit sends the message back out
-        socket.broadcast.emit('mouse', data);
-        
+    socket.on('func1', funcY)
+    socket.on('func2', funcX)
+    // console.log("stage 1");
+    function funcY(y_axis) {
+        // console.log("Function Triggered");
+        //broadcast.emit sends the message back out //Not necesarry for SC
+        // socket.broadcast.emit('func1', y_axis);
         // udpPort.send(msg);
-        udpPort.send({ address: "/SC/syn2/freq", args: [{type: "f",value: data.x },]});
-        udpPort.send({ address: "/SC/syn2/cutoff", args: [{type: "f",value: data.y },]});
+        udpPort.send({ address: "/SC/syn2/freq", args: [{ type: "f", value: y_axis },] });
+        // udpPort.send({ address: "/SC/syn2/cutoff", args: [{ type: "f", value: data },] });
+        console.log(y_axis);
+    }
 
-        // udpPort.send({ address: "/SC/syn1/freq", args: [{type: "f",value: data.y },]});
-        // udpPort.send({ address: "/SC/syn1/freq", args: [{'mouse': data },]});
-        
-
-        //The io.sockets refers to everything, so it will also send the message back to the sender
-        // io.sockets.emit('mouse', data);
-        console.log(data);
+    function funcX(x_axis) {
+        // socket.broadcast.emit('func1', x_axis);
+        udpPort.send({ address: "/SC/syn2/cutoff", args: [{ type: "f", value: x_axis },] });
+        console.log(x_axis);
     }
 }
 
@@ -44,7 +45,7 @@ function newConnection(socket) {
 var udpPort = new osc.UDPPort({
     // This is the port we're listening on.
     localAddress: "127.0.0.1",
-    localPort: 57121,
+    localPort: 57122,
 
     // This is where sclang is listening for OSC messages.
     remoteAddress: "127.0.0.1",
