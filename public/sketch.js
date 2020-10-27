@@ -16,13 +16,11 @@ let x = 0;
 
 function draw() {
   background(0); // Set the background to black
-  y = y - 10; //Speed
+  y = y - 60; //Speed
   if (y < 0) {
     y = height;
   }
-
   y = y;
-
   x = x - 25;
   if (x < 0) {
     x = width;
