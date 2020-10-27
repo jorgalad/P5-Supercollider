@@ -18,7 +18,6 @@ function setup() {
   socket = io.connect('http://localhost:3000')
 
   ball = new Ball();
-  ball2 = new Ball();
 }
 
 let y = 100;
@@ -26,7 +25,6 @@ let x = 0;
 let color = 0;
 
 let ball;
-let ball2;
 
 function draw() {
   background(0);
@@ -35,26 +33,6 @@ function draw() {
   ball.show()
 
   sendData()
-}
-
-function move() {
-  ball.x = ball.x + ball.xspeed;
-  ball.y = ball.y + ball.yspeed;
-}
-
-function bounce() {
-  if (ball.x > width || ball.x < 0) {
-    ball.xspeed = ball.xspeed * -1;
-  }
-  if (ball.y > height || ball.y < 0) {
-    ball.yspeed = ball.yspeed * -1;
-  }
-}
-function show() {
-  stroke(255);
-  strokeWeight(4);
-  noFill()
-  ellipse(ball.x, ball.y, 24, 24);
 }
 
 function sendData() {
