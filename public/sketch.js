@@ -1,9 +1,19 @@
 // This is the Client, it send messages to the server but also receives shit
-var socket = io();
+let socket = io();
+
+let width = 600;
+let height = 400;
+
+var ball = {
+  x: 300,
+  y: 200,
+  xspeed: 4,
+  yspeed: -3
+}
 
 function setup() {
-  createCanvas(600, 400);
-  stroke(255);
+  createCanvas(width, height);
+  // stroke(255);
   frameRate(30);
 
   socket = io.connect('http://localhost:3000')
@@ -13,53 +23,40 @@ function setup() {
 
 let y = 100;
 let x = 0;
+let color = 0;
 
 function draw() {
+  // color = map(mouseX, 0, width, 0, 255);
   background(0); // Set the background to black
-  y = y - 60; //Speed
-  if (y < 0) {
-    y = height;
-  }
-  y = y;
-  x = x - 25;
-  if (x < 0) {
-    x = width;
-  }
-  x = x;
-
-  line(x, y, width, y);
-
-  // socket.emit('func1', data);
-  socket.emit('func1', y);
-  socket.emit('func2', x);
-  console.log('X =', x);  //Check in browser console
-}
-
-
-// function mouseDragged() {
-//   // This is what gets send (JS Object)
-//   var data = {
-//     x: mouseX,
-//     y: mouseY
-//   }
-
-  // socket.emit('func1', data);
-
-  // var data = { x: y };
-  // socket.emit('func1', line + random(-1, 1));
-
-// }
-  // var data = {
-  //   y: y + random(-1, 1)
+  // y = y - 60; //Speed
+  // if (y < 0) {
+  //   y = height;
   // }
+  // y = y;
+  // x = x - 25;
+  // if (x < 0) {
+  //   x = width;
+  // }
+  // x = x;
 
-  //Now send it
+  stroke(255);
+  strokeWeight(4);
+  noFill()
+  ellipse(ball.x, ball.y, 24, 24);
 
+  if (ball.x > width || ball.x < 0) {
+    ball.xspeed = ball.xspeed * -1;
+  }
+  if (ball.y > height || ball.y < 0) {
+    ball.yspeed = ball.yspeed * -1;
+  }
 
-  // noStroke();
-  // fill(255);
-  // ellipse(mouseX, mouseY, 12, 12);
-
-
+  ball.x = ball.x + ball.xspeed;
+  ball.y = ball.y + ball.yspeed;
+  // socket.emit('func1', data);
+  socket.emit('func1', ball.y);
+  socket.emit('func2', ball.x);
+  console.log(ball.x);  //Check in browser console
+}
 
 
